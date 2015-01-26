@@ -37,7 +37,7 @@ public class Game {
 	private static final int OUTLAWS_PLAYER_MIN = 1;
 	
 	// Console
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final boolean GAME_MESSAGES = true;
 	
 	// Income per Unit
@@ -45,9 +45,9 @@ public class Game {
 	public static final int GOLD_PER_CRUSADER = -1;
 	public static final int GOLD_PER_AMAZON = -1;
 	public static final int GOLD_PER_CORSAIR = -2;
-	public static final int GOLD_PER_BISHOP = -1;
-	public static final int GOLD_PER_NECROMANCER = -1;
-	public static final int GOLD_PER_ARCHITECT = -1;
+	public static final int GOLD_PER_BISHOP = -2;
+	public static final int GOLD_PER_NECROMANCER = -2;
+	public static final int GOLD_PER_ARCHITECT = -2;
 	public static final int GOLD_PER_PEON = 5;
 	
 	// Income per Building
@@ -386,7 +386,7 @@ public class Game {
 		int otherTowns = 0;
 		for (Town town : towns) {
 			if (town.getOwner().equals(outlawPlayer)) {
-				outlaws += town.getPeons() + town.getCorsairs();			
+				outlaws += town.getPopulation();			
 			} else {
 				otherTowns++;
 			}
