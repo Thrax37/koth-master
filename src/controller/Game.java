@@ -944,24 +944,24 @@ public class Game {
 					int destinationAmazons = destination.getAmazons();
 					
 					int sourceWarlocksBalance = Math.max(0, sourceWarlocks - destinationWarlocks);
-					int sourceWarlocksBonus = Math.min(sourceWarlocksBalance, destinationAmazons - sourceWarlocksBalance);
+					int sourceWarlocksBonus = Math.min(sourceWarlocksBalance, Math.max(0, destinationAmazons - sourceWarlocksBalance));
 					float sourceWarlocksStrength = (sourceWarlocks - sourceWarlocksBonus + (sourceWarlocksBonus * FIGHTING_BONUS)); 
 					int sourceCrusadersBalance = Math.max(0, sourceCrusaders - destinationCrusaders);
-					int sourceCrusadersBonus = Math.min(sourceCrusadersBalance, destinationWarlocks - sourceCrusadersBalance);
+					int sourceCrusadersBonus = Math.min(sourceCrusadersBalance, Math.max(0, destinationWarlocks - sourceCrusadersBalance));
 					float sourceCrusadersStrength = (sourceCrusaders - sourceCrusadersBonus + (sourceCrusadersBonus * FIGHTING_BONUS)); 
 					int sourceAmazonsBalance = Math.max(0, sourceAmazons - destinationAmazons);
-					int sourceAmazonsBonus = Math.min(sourceAmazonsBalance, destinationCrusaders - sourceAmazonsBalance);
+					int sourceAmazonsBonus = Math.min(sourceAmazonsBalance, Math.max(0, destinationCrusaders - sourceAmazonsBalance));
 					float sourceAmazonsStrength = (sourceAmazons - sourceAmazonsBonus + (sourceAmazonsBonus * FIGHTING_BONUS)); 
 					float sourceTotalStrength = sourceWarlocksStrength + sourceCrusadersStrength + sourceAmazonsStrength;
 					
 					int destinationWarlocksBalance = Math.max(0, destinationWarlocks - sourceWarlocks);
-					int destinationWarlocksBonus = Math.min(destinationWarlocksBalance, sourceAmazons - destinationWarlocksBalance);
+					int destinationWarlocksBonus = Math.min(destinationWarlocksBalance, Math.max(0, sourceAmazons - destinationWarlocksBalance));
 					float destinationWarlocksStrength = (destinationWarlocks - destinationWarlocksBonus + (destinationWarlocksBonus * FIGHTING_BONUS)); 
 					int destinationCrusadersBalance = Math.max(0, destinationCrusaders - sourceCrusaders);
-					int destinationCrusadersBonus = Math.min(destinationCrusadersBalance, sourceWarlocks - destinationCrusadersBalance);
+					int destinationCrusadersBonus = Math.min(destinationCrusadersBalance, Math.max(0, sourceWarlocks - destinationCrusadersBalance));
 					float destinationCrusadersStrength = (destinationCrusaders - destinationCrusadersBonus + (destinationCrusadersBonus * FIGHTING_BONUS)); 
 					int destinationAmazonsBalance = Math.max(0, destinationAmazons - sourceAmazons);
-					int destinationAmazonsBonus = Math.min(destinationAmazonsBalance, sourceCrusaders - destinationAmazonsBalance);
+					int destinationAmazonsBonus = Math.min(destinationAmazonsBalance, Math.max(0, sourceCrusaders - destinationAmazonsBalance));
 					float destinationAmazonsStrength = (destinationAmazons - destinationAmazonsBonus + (destinationAmazonsBonus * FIGHTING_BONUS)); 
 					float destinationTotalStrength = destinationWarlocksStrength + destinationCrusadersStrength + destinationAmazonsStrength;
 					
