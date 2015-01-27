@@ -10,12 +10,8 @@ import players.*;
 public class Game {
 	private final Player[] players = {
 			new Sleeper(),
-			new Sleeper(),
-			new Sleeper(),
-			new Sleeper(),
-			new Sleeper(),
-			new Sleeper(),
-			new Sleeper(),
+			//new Zealots(),
+			new YoungEarl(),
 			new Commander()
 		};
 	
@@ -336,6 +332,7 @@ public class Game {
 				if (GAME_MESSAGES) {
 					System.out.println(town.getOwner().getDisplayName() + " lost a town due to revolt");
 				}
+				if (town.getGold() < 0) town.setGold(0);
 				town.setOwner(outlawPlayer);
 			}
 		}
@@ -740,7 +737,7 @@ public class Game {
 					int corpsesToRaise = Math.min(source.getCorpses(), corpsesToResurrect);
 					int corpsesRaisable = Math.min(corpsesToRaise, raiseCapacity);
 					int goldAvailable = source.getGold();
-					int corpsesAffordable = Math.min(Math.floorDiv(goldAvailable, GOLD_PER_RESURRECTION), corpsesRaisable * GOLD_PER_RESURRECTION); 
+					int corpsesAffordable = Math.min(Math.floorDiv(goldAvailable, GOLD_PER_RESURRECTION), corpsesRaisable); 
 					int cost = corpsesAffordable * GOLD_PER_RESURRECTION;
 					
 					if (corpsesAffordable > 0) {
