@@ -10,7 +10,7 @@ import players.*;
 public class Game {
 	private final Player[] players = {
 			new Sleeper(),
-			//new Zealots(),
+			new Zealots(),
 			new YoungEarl(),
 			new Commander()
 		};
@@ -33,7 +33,7 @@ public class Game {
 	private static final int OUTLAWS_PLAYER_MIN = 1;
 	
 	// Console
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final boolean GAME_MESSAGES = true;
 	
 	// Income per Unit
@@ -332,7 +332,7 @@ public class Game {
 				if (GAME_MESSAGES) {
 					System.out.println(town.getOwner().getDisplayName() + " lost a town due to revolt");
 				}
-				if (town.getGold() < 0) town.setGold(0);
+				town.setGold(START_GOLD);
 				town.setOwner(outlawPlayer);
 			}
 		}

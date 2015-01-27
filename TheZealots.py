@@ -37,7 +37,7 @@ else:
             Warlocks += 1
         if here[GOLD] > 200:
             Architects = 1
-        if rich[-1][GOLD] > 100+2*here[GOLD]
+        if rich[-1][GOLD] > 100+2*here[GOLD]:
             Corsairs = 1
         output = 'R %s %s %s %s %s %s %s' % (Warlocks,Crusaders,Amazons,Corsairs,Bishops,Necromancers,Architects)
     elif phase == 6:
