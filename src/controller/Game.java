@@ -12,7 +12,8 @@ public class Game {
 			new Sleeper(),
 			new Zealots(),
 			new YoungEarl(),
-			new Commander()
+			new Commander(),
+			new Lannister()
 		};
 	
 	// Game Parameters
@@ -33,7 +34,7 @@ public class Game {
 	private static final int OUTLAWS_PLAYER_MIN = 1;
 	
 	// Console
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final boolean GAME_MESSAGES = true;
 	
 	// Income per Unit
@@ -421,8 +422,34 @@ public class Game {
 			builder.append(town.getBishops()).append('_');
 			builder.append(town.getNecromancers()).append('_');
 			builder.append(town.getArchitects()).append('_');
-			builder.append(town.getPeons());
+			builder.append(town.getPeons()).append('_');
+			builder.append(this.generateBuildingsList(town));
 		}
+		return builder.toString();
+	}
+	
+	private String generateBuildingsList(Town town) {
+		
+		StringBuilder builder = new StringBuilder();
+		int temples = 0;
+		int barracks = 0;
+		int estates = 0;
+		int palaces = 0;
+		for (Building building : town.getBuildings()) {
+			if (building.getCompletion() == COMPLETION_NEEDED) {
+				switch (building.getType()) {
+					case TEMPLE: temples++; break;
+					case BARRACKS: barracks++; break;
+					case ESTATE: estates++; break;
+					case PALACE: palaces++; break;
+					default: break;
+				}
+			}
+		}
+		builder.append(temples).append("-");
+		builder.append(barracks).append("-");
+		builder.append(estates).append("-");
+		builder.append(palaces);
 		return builder.toString();
 	}
 		
