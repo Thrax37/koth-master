@@ -34,7 +34,7 @@ public class Game {
 	private static final int OUTLAWS_PLAYER_MIN = 1;
 	
 	// Console
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final boolean GAME_MESSAGES = true;
 	
 	// Income per Unit
@@ -422,6 +422,7 @@ public class Game {
 			builder.append(town.getBishops()).append('_');
 			builder.append(town.getNecromancers()).append('_');
 			builder.append(town.getArchitects()).append('_');
+			//builder.append(town.getPeons());
 			builder.append(town.getPeons()).append('_');
 			builder.append(this.generateBuildingsList(town));
 		}
@@ -828,11 +829,11 @@ public class Game {
 			
 					source.setWarlocks(source.getWarlocks() + warlocksRecruited);
 					source.setCrusaders(source.getCrusaders() + crusadersRecruited);
-					source.setAmazons(source.getWarlocks() + amazonsRecruited);
-					source.setCorsairs(source.getWarlocks() + corsairsRecruited);
-					source.setBishops(source.getWarlocks() + bishopsRecruited);
-					source.setNecromancers(source.getWarlocks() + necromancersRecruited);
-					source.setArchitects(source.getWarlocks() + architectsRecruited);
+					source.setAmazons(source.getAmazons() + amazonsRecruited);
+					source.setCorsairs(source.getCorsairs() + corsairsRecruited);
+					source.setBishops(source.getBishops() + bishopsRecruited);
+					source.setNecromancers(source.getNecromancers() + necromancersRecruited);
+					source.setArchitects(source.getArchitects() + architectsRecruited);
 					source.setGold(source.getGold() - cost);
 					
 					if (GAME_MESSAGES) System.out.println(source.getOwner().getDisplayName() + " recruted " + recruted + " units (" + warlocksRecruited + " Wa / " + crusadersRecruited + " Cr / " + amazonsRecruited + " Am / " + corsairsRecruited + " Co / " + bishopsRecruited + " Bi / " + necromancersRecruited + " Ne / " + architectsRecruited + " Ar)");
