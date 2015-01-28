@@ -808,7 +808,7 @@ public class Game {
 				
 				int unitsToRecruits = warlocksCount + crusadersCount + amazonsCount + corsairsCount + bishopsCount + necromancersCount + architectsCount;
 				int peonsAvailable = source.getPeons();
-				int recruitableUnits = Math.max(unitsToRecruits, peonsAvailable);
+				int recruitableUnits = Math.min(unitsToRecruits, peonsAvailable);
 				int goldAvailable = source.getGold();
 				int affordableUnits = (recruitableUnits != unitsToRecruits ? Math.floorDiv(goldAvailable, GOLD_RECRUIT_DEFAULT) : recruitableUnits);
 				
@@ -834,6 +834,7 @@ public class Game {
 					source.setBishops(source.getBishops() + bishopsRecruited);
 					source.setNecromancers(source.getNecromancers() + necromancersRecruited);
 					source.setArchitects(source.getArchitects() + architectsRecruited);
+					source.setPeons(source.getPeons() - recruted);
 					source.setGold(source.getGold() - cost);
 					
 					if (GAME_MESSAGES) System.out.println(source.getOwner().getDisplayName() + " recruted " + recruted + " units (" + warlocksRecruited + " Wa / " + crusadersRecruited + " Cr / " + amazonsRecruited + " Am / " + corsairsRecruited + " Co / " + bishopsRecruited + " Bi / " + necromancersRecruited + " Ne / " + architectsRecruited + " Ar)");
@@ -1180,8 +1181,8 @@ public class Game {
 						source.setGold(source.getGold() - goldTransported);
 						destination.setGold(destination.getGold() + goldTransported);
 					
-						if (GAME_MESSAGES && (source.getOwner().equals(destination.getOwner()))) System.out.println(source.getOwner().getDisplayName() + " offered " + goldTransported + " gold in tribute to " + destination.getOwner().getDisplayName());				
-						if (GAME_MESSAGES && (!source.getOwner().equals(destination.getOwner()))) System.out.println(source.getOwner().getDisplayName() + " moved " + goldTransported + " gold between cities");
+						if (GAME_MESSAGES && (!source.getOwner().equals(destination.getOwner()))) System.out.println(source.getOwner().getDisplayName() + " offered " + goldTransported + " gold in tribute to " + destination.getOwner().getDisplayName());				
+						if (GAME_MESSAGES && (source.getOwner().equals(destination.getOwner()))) System.out.println(source.getOwner().getDisplayName() + " moved " + goldTransported + " gold between cities");
 					}
 				}
 			} else if (support.getCommand().equals("W")) {
