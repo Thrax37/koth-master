@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TheLannisters {
-    private static final int MIN_PEONS = 20;
+    private static final int MIN_PEONS = 30;
     private static final int COST_PER_SOLDIER = 11;
     private static final int COST_PER_CORSAIR = 14;
     private static final int COST_PER_BISHOP = 22;
@@ -16,17 +16,6 @@ public class TheLannisters {
     private final List<Town> enemyPlayerTowns = new ArrayList<>();
     private final List<Town> outlawTowns = new ArrayList<>();
     private Town thisTown = null;
-
-    /*
-     * Warlocks : Fighter (magic) 
-     * Crusaders : Fighter (melee) 
-     * Amazons : Fighter (range) 
-     * Corsairs : Utility (steal, guard, transport) 
-     * Bishops : Utility (convert, exorcize) 
-     * Necromancers : Utility (resurrect) 
-     * Architects : Utility (build) 
-     * Peons : Resource (income, recruits)
-     */
 
     public static void main(String[] args){
         if (args.length == 0) {
@@ -78,7 +67,7 @@ public class TheLannisters {
     private void steal() {
         int goldToSteal = thisTown.corsairs * 10;
 
-        // a player who can't steal it back => very weak next turns
+        // a player who can't steal it back => very weak next turn
         for (Town town : enemyPlayerTowns) {
             if (town.gold >= goldToSteal && town.hasAlreadyCommanded) {
                 printCommand("S " + town.id + " " + thisTown.corsairs);
@@ -98,7 +87,7 @@ public class TheLannisters {
             printCommand("S " + richestTown.id + " " + thisTown.corsairs);
         }
 
-        // player with most gold (could be a bandit)
+        // player with most gold (could be an outlaw)
         mostGold = -1;
         for (Town town : enemyTowns) {
             if (town.gold > mostGold) {
@@ -116,6 +105,9 @@ public class TheLannisters {
 
         int freePeons = -(MIN_PEONS - thisTown.peons);
         int freeGold = thisTown.gold - thisTown.getSoldiers() - thisTown.getCitizens() * 2 - 300;
+        if (round < 5 && !thisTown.isWeak()) {
+            freeGold -= 200;
+        }
 
         if (freePeons <= 0 || freeGold < COST_PER_SOLDIER) {
             printCommand("W");          
@@ -144,7 +136,7 @@ public class TheLannisters {
     private void convert() {
         int freeGold = 0;
         if (thisTown.isWeak() || thisTown.gold > 600) {
-            freeGold = thisTown.gold;
+            freeGold = thisTown.gold - 100;
         } else if (thisTown.corpses <= 0) {
             freeGold = thisTown.gold - 2*BUILDING_COST;
         }
@@ -181,11 +173,11 @@ public class TheLannisters {
     private void attack() {
         int leastSoldiers = Integer.MAX_VALUE;
         Town destination = null;
-        boolean tooMuchSoldiers = thisTown.getSoldiers() > 1000;
+        boolean tooMuchSoldiers = thisTown.getSoldiers() > 600;
         for (Town town : enemyTowns) {
-            if (town.getSoldiers() < leastSoldiers && tooMuchSoldiers 
+            if (town.getSoldiers() < leastSoldiers && (tooMuchSoldiers 
                     || (town.bishops > 0
-                    && (town.peons > 10 || (town.necromancers > 0 && town.gold > 200)))) {
+                    && (town.peons > 10 || (town.necromancers > 0 && town.gold > 200))))) {
                 destination = town;
                 leastSoldiers = town.getSoldiers();
             }
@@ -196,7 +188,7 @@ public class TheLannisters {
 
         boolean attackTogether = false;
         for (Town town : myTowns) {
-            if (!town.hasAlreadyCommanded && !town.isWeak()) {
+            if (!town.hasAlreadyCommanded && !town.isWeak() && town != thisTown) {
                 attackTogether = true;
             }
         }
@@ -207,6 +199,10 @@ public class TheLannisters {
                 div += 0.1;
             }
             div = 1.5 + (3 - div) / 2; //strange...
+            if (enemyPlayerTowns.size() == 0) {
+                // dont send too many soldiers => otherwise they revolt
+                printCommand("A " + destination.id + " " + (destination.warlocks + 2) + " " + (destination.crusaders + 2) + " " + (destination.amazons + 2));
+            }
             printCommand("A " + destination.id + " " + (int)(thisTown.warlocks / div) + " " + (int)(thisTown.crusaders / div) + " " + (int)(thisTown.amazons / div));
         } else {
             printCommand("W");
@@ -214,7 +210,7 @@ public class TheLannisters {
     }
 
     private void resurrect() {
-        if (thisTown.gold > BUILDING_COST && thisTown.corpses < 20 && thisTown.peons > 19) {
+        if (thisTown.gold > BUILDING_COST && thisTown.corpses < 20 && thisTown.peons >= MIN_PEONS) {
             int freeGold = thisTown.gold - BUILDING_COST;
             printCommand("R " + (freeGold / 20));
         }
@@ -233,8 +229,8 @@ public class TheLannisters {
                 destination = town;
             }
         }
-        if (thisTown.hasMostGold() || (thisTown.gold > 300 && destination.gold - destination.getSoldiers() - destination.getCitizens() * 2 < 300)) {
-            printCommand("T " + destination.id + " " + thisTown.gold / 4);
+        if (destination != null && (thisTown.hasMostGold() || (thisTown.gold > 600 && destination.gold - destination.getSoldiers() - destination.getCitizens() * 2 < 300))) {
+            printCommand("T " + destination.id + " " + thisTown.gold / 10);
         }
         for (Town town : myTowns) {
             if (town.isWeak()) {

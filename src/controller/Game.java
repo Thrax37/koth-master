@@ -10,7 +10,7 @@ import players.*;
 public class Game {
 	private final Player[] players = {
 			new Sleeper(),
-			new Zealots(),
+			//new Zealots(),
 			new YoungEarl(),
 			new Commander(),
 			new Lannister()
@@ -21,6 +21,7 @@ public class Game {
 	private static final int MAX_POPULATION = 100;
 	private static final int START_GOLD = 500;
 	private static final int START_CORPSES = 5;
+	private static final int GOLD_MAX_DEBT = 200;
 	private static final float FIGHTING_BONUS = 1.5f;
 	private static final int ROUNDS = 100;
 	private static final int BIRTH_ROUND = 5;
@@ -394,7 +395,7 @@ public class Game {
 		for (Town town : towns) {
 			if (!town.getOwner().equals(outlawPlayer)) {
 				int overflowOutlaws = Math.max(0, averageOutlaws - (town.getCorsairs() * CORSAIR_SURVEILLANCE_RATIO));
-				int goldReserve = Math.max(0, town.getGold());
+				int goldReserve = town.getGold() >= GOLD_MAX_DEBT ? town.getGold() : town.getGold() + GOLD_MAX_DEBT;
 				int goldToSteal = overflowOutlaws * GOLD_PER_STEAL;
 				int goldStolen = Math.min(goldReserve, goldToSteal);
 				
@@ -725,7 +726,7 @@ public class Game {
 					int corsairsCount = Math.max(0, Integer.parseInt(args[1]));
 					int availableCorsairs = source.getCorsairs();
 					int useableCorsaires = Math.min(corsairsCount, availableCorsairs);
-					int goldReserve = Math.max(destination.getGold() , 0);
+					int goldReserve = source.getGold() >= GOLD_MAX_DEBT ? source.getGold() : source.getGold() + GOLD_MAX_DEBT;
 					int goldToSteal = useableCorsaires * GOLD_PER_STEAL;
 					int goldStolen = Math.min(goldReserve, goldToSteal);
 						
@@ -808,7 +809,7 @@ public class Game {
 				
 				int unitsToRecruits = warlocksCount + crusadersCount + amazonsCount + corsairsCount + bishopsCount + necromancersCount + architectsCount;
 				int peonsAvailable = source.getPeons();
-				int recruitableUnits = Math.max(unitsToRecruits, peonsAvailable);
+				int recruitableUnits = Math.min(unitsToRecruits, peonsAvailable);
 				int goldAvailable = source.getGold();
 				int affordableUnits = (recruitableUnits != unitsToRecruits ? Math.floorDiv(goldAvailable, GOLD_RECRUIT_DEFAULT) : recruitableUnits);
 				
@@ -834,6 +835,7 @@ public class Game {
 					source.setBishops(source.getBishops() + bishopsRecruited);
 					source.setNecromancers(source.getNecromancers() + necromancersRecruited);
 					source.setArchitects(source.getArchitects() + architectsRecruited);
+					source.setPeons(source.getPeons() - recruted);
 					source.setGold(source.getGold() - cost);
 					
 					if (GAME_MESSAGES) System.out.println(source.getOwner().getDisplayName() + " recruted " + recruted + " units (" + warlocksRecruited + " Wa / " + crusadersRecruited + " Cr / " + amazonsRecruited + " Am / " + corsairsRecruited + " Co / " + bishopsRecruited + " Bi / " + necromancersRecruited + " Ne / " + architectsRecruited + " Ar)");
@@ -1180,8 +1182,8 @@ public class Game {
 						source.setGold(source.getGold() - goldTransported);
 						destination.setGold(destination.getGold() + goldTransported);
 					
-						if (GAME_MESSAGES && (source.getOwner().equals(destination.getOwner()))) System.out.println(source.getOwner().getDisplayName() + " offered " + goldTransported + " gold in tribute to " + destination.getOwner().getDisplayName());				
-						if (GAME_MESSAGES && (!source.getOwner().equals(destination.getOwner()))) System.out.println(source.getOwner().getDisplayName() + " moved " + goldTransported + " gold between cities");
+						if (GAME_MESSAGES && (!source.getOwner().equals(destination.getOwner()))) System.out.println(source.getOwner().getDisplayName() + " offered " + goldTransported + " gold in tribute to " + destination.getOwner().getDisplayName());				
+						if (GAME_MESSAGES && (source.getOwner().equals(destination.getOwner()))) System.out.println(source.getOwner().getDisplayName() + " moved " + goldTransported + " gold between cities");
 					}
 				}
 			} else if (support.getCommand().equals("W")) {
