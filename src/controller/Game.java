@@ -10,10 +10,11 @@ import players.*;
 public class Game {
 	private final Player[] players = {
 			new Sleeper(),
-			//new Zealots(),
+			new Zealots(),
 			new YoungEarl(),
 			new Commander(),
-			new Lannister()
+			new Lannister(),
+			new Aegis()
 		};
 	
 	// Game Parameters
@@ -35,7 +36,7 @@ public class Game {
 	private static final int OUTLAWS_PLAYER_MIN = 1;
 	
 	// Console
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final boolean GAME_MESSAGES = true;
 	
 	// Income per Unit
@@ -448,9 +449,9 @@ public class Game {
 				}
 			}
 		}
-		builder.append(temples).append("-");
-		builder.append(barracks).append("-");
-		builder.append(estates).append("-");
+		builder.append(temples).append("_");
+		builder.append(barracks).append("_");
+		builder.append(estates).append("_");
 		builder.append(palaces);
 		return builder.toString();
 	}

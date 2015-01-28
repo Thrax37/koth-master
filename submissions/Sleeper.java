@@ -86,7 +86,11 @@ public class Sleeper {
         private final int necromancers;
         private final int architects;
         private final int peons;
-        
+        private final int temples;
+        private final int barracks;
+        private final int estates;
+        private final int palaces;
+
         public Town(String string){
             String[] args = string.split("_");
             ownerId = Integer.parseInt(args[0]);
@@ -101,63 +105,78 @@ public class Sleeper {
             necromancers = Integer.parseInt(args[9]);
             architects = Integer.parseInt(args[10]);
             peons = Integer.parseInt(args[11]);
+            temples = Integer.parseInt(args[12]);
+            barracks = Integer.parseInt(args[13]);
+            estates = Integer.parseInt(args[14]);
+            palaces = Integer.parseInt(args[15]);
         }
-
 		public int getOwnerId() {
 			return ownerId;
 		}
-
 		public int getId() {
 			return id;
 		}
-
 		public int getGold() {
 			return gold;
 		}
-
 		public int getCorpses() {
 			return corpses;
 		}
-
 		public int getWarlocks() {
 			return warlocks;
 		}
-
 		public int getCrusaders() {
 			return crusaders;
 		}
-
 		public int getAmazons() {
 			return amazons;
 		}
-
 		public int getCorsairs() {
 			return corsairs;
 		}
-
 		public int getBishops() {
 			return bishops;
 		}
-
 		public int getNecromancers() {
 			return necromancers;
 		}
-
 		public int getArchitects() {
 			return architects;
 		}
-
 		public int getPeons() {
 			return peons;
 		}
-		
+		public int getTemples() {
+			return temples;
+		}
+		public int getBarracks() {
+			return barracks;
+		}
+		public int getEstates() {
+			return estates;
+		}
+		public int getPalaces() {
+			return palaces;
+		}
+		public int getBuildings() {
+			return getTemples() + getBarracks() + getEstates() + getPalaces();
+		}
+		public int getSoldiers() {
+			return getWarlocks() + getCrusaders() + getAmazons();
+		}
+		public int getUnits() {
+			 return getSoldiers() + getCorsairs() + getBishops() + getNecromancers() + getArchitects();
+		}
+		public int getCitizens() {
+			return getUnits() + getPeons();
+		}
 		public boolean isMine(){
-            return ownerId == playerID;
+            return getOwnerId() == playerID;
         }
-
-        public boolean isThisTown(){
+		public boolean isThisTown(){
             return id == thisTownID;
         }
+ 
     }
 
 }

@@ -1,12 +1,22 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Commander {
+public class Aegis {
 
 	int round;
 	int phase;
 	int playerID;
 	int thisTownID;
+	
+	final int PEONS_PER_BISHOPS = 50;
+	final int GOLD_STOLEN_PER_CORSAIR = 10;
+	final int AVERAGE_COST_PER_UNIT = 2;
+	final int GOLD_SAFETY = 100;
+	final int PEONS_SAFETY = 20;
+	final int COST_CORSAIR = 12;
+	final int COST_SOLDIER = 10;
+	final int COST_ESTATE = 200;
+	final int MAX_CORSAIRS = 30;
 	
 	List<Town> towns;
     List<Town> myTowns;
@@ -16,13 +26,13 @@ public class Commander {
 	
     public static void main(String[] args){
         if (args.length == 0) {
-        	System.out.println("15 10 12 10 7 5 1 40");
+        	System.out.println("10 10 10 10 1 1 3 55");
         } else {
-        	new Commander().conquer(args[0].split(";"));
+        	new Aegis().protect(args[0].split(";"));
         }
     }
     
-    private void conquer(String[] args) {
+    private void protect(String[] args) {
     	
     	round = Integer.parseInt(args[0]);
 		phase = Integer.parseInt(args[1]);
@@ -48,119 +58,112 @@ public class Commander {
             }
         }
         
-		if (phase == 2) { 				// Steal
-			//Command : S destinationId corsairs
-			steal();
-		} else if (phase == 3) {		// Recruit
-			//Command : R warlocks crusaders amazons corsairs bishops necromancers architects
-			recruit()	;
-		} else if (phase == 6) {		// Convert
-			//Command : C destinationId warlocks crusaders amazons 
-			convert();
-		} else if (phase == 7) {		// Attack
-			//Command : A destinationId warlocks crusaders amazons
-			attack();	
-		} else if (phase == 8) {		// Resurrect
-			//Command : R corpses
-			resurrect();	
-		} else if (phase == 9) {		// Move
-			//Command : M destinationId warlocks crusaders amazons corsairs bishops necromancers architects
-			move();
-		} else if (phase == 11) {		// Build
-			//Command : B building building building... (T: Temple, B: Barracks, E: Estate, P: Palace)
-			build();
+		switch (phase) {
+		case 2: steal(); break;
+		case 3: recruit(); break;
+		case 6: convert(); break;
+		case 7: attack(); break;
+		case 8: move(); break;
+		case 9: resurrect(); break;
+		case 11: build(); break;
 		}
     }
     
     private void steal() {
-    	Town richestTown = otherTowns.stream().max((a,b) -> a.gold - b.gold).get();
+       	Town richestTown = otherTowns.stream().max((a,b) -> a.gold - b.gold).get();
     	System.out.println("S " + richestTown.getId() + " " + thisTown.getCorsairs());
     }
     
     private void recruit() {
-    	
-    	int maxUnitsToRecruits = Math.floorDiv(thisTown.getPeons() - thisTown.getUnits(), 2);
-    	int goldAvailable = thisTown.getGold() - (thisTown.getUnits() * 5);
-    	int unitsRecruited = 0;
-    	int cost = 10;
+    	Town richestTown = otherTowns.stream().max((a,b) -> a.gold - b.gold).get();
+    	Town soldierTown = otherTowns.stream().max((a,b) -> (a.amazons + a.warlocks + a.crusaders) - (b.amazons + b.warlocks + b.crusaders)).get();
+    	int requiredBishops = Math.max(0, Math.floorDiv(thisTown.getPeons(), PEONS_PER_BISHOPS) - thisTown.getBishops());
+    	int requiredNecromancers = Math.max(0, 1 - thisTown.getNecromancers());
+    	int requiredArchitects = Math.max(0, 5 - thisTown.getArchitects());
+    	int requiredCorsairs = Math.max(0, Math.min(MAX_CORSAIRS - thisTown.getCorsairs(), Math.floorDiv(richestTown.getGold(), GOLD_STOLEN_PER_CORSAIR)));
+    	int goldAvailable = thisTown.getGold() - (AVERAGE_COST_PER_UNIT * thisTown.getUnits()) - GOLD_SAFETY;
+    	int peonsAvailable = Math.max(0, thisTown.getPeons() - PEONS_SAFETY);
+    	int recruitedCorsairs = 0;
     	int[] recruits = new int[3];
     	int i = 0;
-    	int necromancers = Math.max(0, 5 - thisTown.getNecromancers());
-    	while (goldAvailable >= 0 && unitsRecruited <= maxUnitsToRecruits) {
-    		 i = (i >= recruits.length - 1 ? 0 : i+1);
-    		 recruits[i]++;
-    		 unitsRecruited++;
-    		 goldAvailable-=cost;
+    	while (peonsAvailable >= 5 && goldAvailable >= 50 && recruitedCorsairs < requiredCorsairs) {
+    		recruitedCorsairs++;
+    		peonsAvailable--;
+    		goldAvailable-=COST_CORSAIR;
     	}
-    	if (unitsRecruited > 0) {
-    		System.out.println("R " + recruits[0] + " " + recruits[1] + " " + recruits[2] + " 0 0 " +  necromancers + " 0");
+    	while (peonsAvailable >= 5 && goldAvailable >= 50) {
+	    	if (soldierTown.getSoldiers() > thisTown.getSoldiers()) {
+	    		i = (i >= recruits.length - 1 ? 0 : i+1);
+	    		recruits[i]++;
+	    		peonsAvailable--;
+	   		 	goldAvailable-=COST_SOLDIER;
+	    	} else {
+	    		break;
+	    	}
+    	}
+    	if (recruits[0] + recruits[1] + recruits[2] + recruitedCorsairs + requiredBishops + requiredNecromancers + requiredArchitects > 0) {
+    		System.out.println("R " + recruits[0] + " " + recruits[1] + " " + recruits[2] + " " + recruitedCorsairs + " " + requiredBishops + " " +  requiredNecromancers + " " + requiredArchitects);
     	} else {
     		System.out.println("W");
     	}
     }
 
-    private void convert() {
-    	
-     	Town biggestTown = otherTowns.stream().max((a,b) -> a.getCitizens() - b.getCitizens()).get();
-       	int goldAvailable = thisTown.getGold() - (thisTown.getUnits() * 5);
-        int bishopsAvailable = thisTown.getBishops();
-       	int unitsConverted = 0;
-    	int cost = 50;
-    	int[] converts = new int[3];
-    	int i = 0;
-    	while (goldAvailable >= 0 && unitsConverted <= bishopsAvailable) {
-    		 i = (i >= converts.length - 1 ? 0 : i+1);
-    		 converts[i]++;
-    		 goldAvailable-=cost;
-    	}
-      	System.out.println("C " + biggestTown.getId() + " " + converts[0] + " " + converts[1] + " " + converts[2]);  
+    private void convert() { 
+    	System.out.print("W");
     }
 
     private void attack() {
-    	
-    	Town lessDefendedTown = otherTowns.stream().max((a,b) -> a.getSoldiers() - b.getSoldiers()).get();
-    	int neededWarlocks =  thisTown.getWarlocks() - lessDefendedTown.getWarlocks();
-    	int neededCrusaders = thisTown.getCrusaders() - lessDefendedTown.getCrusaders();
-    	int neededAmazons = thisTown.getAmazons() - lessDefendedTown.getAmazons() ;
-    	
-    	if (neededWarlocks > 0 && neededCrusaders > 0 && neededAmazons > 0) {
-    		System.out.println("A " + lessDefendedTown.getId() + " " + (lessDefendedTown.getWarlocks() + 1) + " " + (lessDefendedTown.getCrusaders() + 1) + " " + (lessDefendedTown.getAmazons() + 1));  
+    	if (this.countOtherPlayers() <= 1) {
+    	  	Town richestTown = otherTowns.stream().max((a,b) -> a.getGold() - b.getGold()).get();
+    	  	int neededWarlocks =  thisTown.getWarlocks() - richestTown.getWarlocks();
+        	int neededCrusaders = thisTown.getCrusaders() - richestTown.getCrusaders();
+        	int neededAmazons = thisTown.getAmazons() - richestTown.getAmazons() ;
+        	
+        	if (neededWarlocks > 0 && neededCrusaders > 0 && neededAmazons > 0) {
+        		System.out.println("A " + richestTown.getId() + " " + (richestTown.getWarlocks() + 1) + " " + (richestTown.getCrusaders() + 1) + " " + (richestTown.getAmazons() + 1));  
+        	} else {
+        		System.out.println("W");
+        	}
     	} else {
     		System.out.println("W");
     	}
-    	
     }
 
     private void move() {
-    	System.out.println("W");
+       	for (Town town : myTowns) {
+       		int goldBalance = town.getGold() - (AVERAGE_COST_PER_UNIT * thisTown.getUnits()) + GOLD_SAFETY;
+       		if (goldBalance <= 0) {
+       			System.out.println("T " + town.getId() + " " + (-goldBalance + GOLD_SAFETY));
+       			break;
+       		}
+       	}
+       	System.out.println("W");
     }
     
     private void resurrect() {
-      	int goldAvailable = thisTown.getGold() - (thisTown.getUnits() * 5);
-      	int corpsesAvailable = thisTown.getCorpses();
-      	int availableNecromancers = thisTown.getNecromancers();
-      	int raiseCapacity = availableNecromancers * 5;
-      	int raisedCorpses = 0;
-      	while (corpsesAvailable >= 0 && raiseCapacity >= 0 && goldAvailable >= 0) {
-      		raisedCorpses++;
-      		corpsesAvailable--;
-      		goldAvailable -= 20;
-      		raiseCapacity--;
-      	}
-      	if (raisedCorpses > 0) {
-      		System.out.println("R " + raisedCorpses);
-      	} else {
-      		System.out.println("W");
-      	}
+    	if (thisTown.getCorpses() > 0) {
+    		int corpses = Math.min(5, thisTown.getCorpses());
+    		System.out.print("R " + corpses);
+    	} else {
+    		System.out.print("W");
+    	}
     }
 
     private void build() {
-      	int goldAvailable = thisTown.getGold() - (thisTown.getUnits() * 5);
-      	if (goldAvailable >= 400) {
-      		System.out.println("B B");
+      	int goldAvailable = thisTown.getGold() - (AVERAGE_COST_PER_UNIT * thisTown.getUnits()) - GOLD_SAFETY;
+      	if (goldAvailable >= (COST_ESTATE + 50)) {
+      		System.out.println("B E");
       	} else {
       		System.out.println("W");
-      	}
+        }
+    }
+    
+    public int countOtherPlayers() {
+    	List<Integer>players = new ArrayList<>();
+    	for (Town town : otherTowns) {
+    		if (!players.contains(town.getOwnerId()) && town.getOwnerId() >= 0) players.add(town.getOwnerId());
+    	}
+    	return players.size();
     }
     
     private class Town {
@@ -267,7 +270,6 @@ public class Commander {
 		public boolean isThisTown(){
             return id == thisTownID;
         }
- 
     }
 
 }

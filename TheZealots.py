@@ -1,9 +1,10 @@
-import sys
+import sys, re
 from random import *
 from operator import itemgetter
 
-(PLAYER, TOWN, GOLD, CORPSES, WARLOCKS, CRUSADERS, AMAZONS, CORSAIRS, BISHOPS,
-NECROMANCERS, ARCHITECTS, PEONS) = range(12)
+(PLAYER, TOWN, GOLD, CORPSES, WARLOCKS, CRUSADERS, AMAZONS, 
+CORSAIRS, BISHOPS, NECROMANCERS, ARCHITECTS, PEONS, 
+TEMPLES, BARRACKS, ESTATES, PALACES) = range(16)
 
 def getstrength(t):
     return t[WARLOCKS]+t[CRUSADERS]*1.5+t[AMAZONS]/1.5
@@ -13,12 +14,13 @@ if len(sys.argv) < 2:
 else:
     parts = sys.argv[1].split(';')
     turn, phase, me, thistown = [int(parts.pop(0)) for i in range(4)]
-    towns = [[int(v) for v in town.split('_')] for town in parts]
+    towns = [map(int, re.split(r'[-_]', town)) for town in parts]
     enemy = [t for t in towns if t[PLAYER] != me]
     mytowns = [t for t in towns if t[PLAYER] == me]
     here = [t for t in mytowns if t[TOWN] == thistown][0]
     otherids = [t[TOWN] for t in enemy]
     strength = sorted(enemy, key=getstrength)
+    avgstrength = sum(map(getstrength, enemy)) / len(enemy)
     rich = sorted(enemy, key=itemgetter(GOLD))
 
     output = ''
