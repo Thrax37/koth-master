@@ -1019,7 +1019,7 @@ public class Game {
 						destination.setNecromancers(0);
 						destination.setArchitects(0);
 						
-						destination.setCorpses(destination.getCorpses() + sourceWarlocks + sourceCrusaders + sourceAmazons + losses[0] + losses[1] + losses[2]);
+						destination.setCorpses(destination.getCorpses() + destinationWarlocks + destinationCrusaders + destinationAmazons + losses[0] + losses[1] + losses[2]);
 						
 						if (GAME_MESSAGES) System.out.println(source.getOwner().getDisplayName() + " captured a town from " + destination.getOwner().getDisplayName() + " (" + source.getOwner().getDisplayName() + " losses : " + losses[0] + " Wa / " + losses[1] + " Cr / " + losses[2] + " Am)"); 
 						
