@@ -13,7 +13,7 @@ if len(sys.argv) < 2:
 else:
     parts = sys.argv[1].split(';')
     turn, phase, me, thistown = [int(parts.pop(0)) for i in range(4)]
-    towns = [map(int, re.split(r'[-_]', town)) for town in parts]
+    towns = [map(int, re.split(r'_', town)) for town in parts]
     enemy = [t for t in towns if t[PLAYER] != me]
     mytowns = [t for t in towns if t[PLAYER] == me]
     here = [t for t in mytowns if t[TOWN] == thistown][0]

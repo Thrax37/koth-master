@@ -1,4 +1,4 @@
-import sys, re
+import sys
 from random import *
 from operator import itemgetter
 
@@ -14,13 +14,12 @@ if len(sys.argv) < 2:
 else:
     parts = sys.argv[1].split(';')
     turn, phase, me, thistown = [int(parts.pop(0)) for i in range(4)]
-    towns = [map(int, re.split(r'[-_]', town)) for town in parts]
+    towns = [[int(v) for v in town.split('_')] for town in parts]
     enemy = [t for t in towns if t[PLAYER] != me]
     mytowns = [t for t in towns if t[PLAYER] == me]
     here = [t for t in mytowns if t[TOWN] == thistown][0]
     otherids = [t[TOWN] for t in enemy]
     strength = sorted(enemy, key=getstrength)
-    avgstrength = sum(map(getstrength, enemy)) / len(enemy)
     rich = sorted(enemy, key=itemgetter(GOLD))
 
     output = ''
@@ -54,7 +53,7 @@ else:
             output = 'R %s' % here[NECROMANCERS]*5
     elif phase == 9:
         pass  # move people or gold here
-    elif phase == 11:
+    elif phase == 11 and here[GOLD] > 300:
         output = 'B T'   # Build a temple!
 
     print output if output else 'W'

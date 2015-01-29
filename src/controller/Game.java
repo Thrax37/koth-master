@@ -36,7 +36,7 @@ public class Game {
 	private static final int OUTLAWS_PLAYER_MIN = 1;
 	
 	// Console
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final boolean GAME_MESSAGES = true;
 	
 	// Income per Unit
@@ -1175,8 +1175,8 @@ public class Game {
 					int goldTransportCapacity = source.getCorsairs() * CORSAIR_TRANSPORT_RATIO;
 					int goldAvailable = source.getGold();
 					
-					int goldToTransport = Math.max(goldAvailable, goldToMove);
-					int goldTransported = Math.max(goldToTransport, goldTransportCapacity);
+					int goldToTransport = Math.min(goldAvailable, goldToMove);
+					int goldTransported = Math.min(goldToTransport, goldTransportCapacity);
 					
 					if (goldTransported > 0) {
 						
