@@ -9,12 +9,15 @@ import players.*;
 
 public class Game {
 	private final Player[] players = {
-			new Sleeper(),
-			new Zealots(),
-			new YoungEarl(),
+			new Aegis(),
+			new Butter(),
 			new Commander(),
 			new Lannister(),
-			new Aegis()
+			new Monarch(),
+			new Serenity(),
+			new Sleeper(),
+			new YoungEarl(),
+			new Zealots()
 		};
 	
 	// Game Parameters
