@@ -14,6 +14,7 @@ public class Game {
 			new Commander(),
 			new Lannister(),
 			new Monarch(),
+			new Sehtimianer(),
 			new Serenity(),
 			new Sleeper(),
 			new YoungEarl(),
@@ -730,7 +731,7 @@ public class Game {
 					int corsairsCount = Math.max(0, Integer.parseInt(args[1]));
 					int availableCorsairs = source.getCorsairs();
 					int useableCorsaires = Math.min(corsairsCount, availableCorsairs);
-					int goldReserve = source.getGold() >= GOLD_MAX_DEBT ? source.getGold() : source.getGold() + GOLD_MAX_DEBT;
+					int goldReserve = destination.getGold() + GOLD_MAX_DEBT > 0 ? destination.getGold() + GOLD_MAX_DEBT : GOLD_MAX_DEBT - Math.abs(destination.getGold());
 					int goldToSteal = useableCorsaires * GOLD_PER_STEAL;
 					int goldStolen = Math.min(goldReserve, goldToSteal);
 						
@@ -796,65 +797,100 @@ public class Game {
 	}
 
 	private void executeRecruitment(Command support) {
-		
-		Town source = support.getSource();
-		try {
-			String[] args = support.getArgs();
-			
-			if (support.getCommand().equals("R") && args.length == 7) {
-			
-				int warlocksCount = Math.max(0, Integer.parseInt(args[0]));
-				int crusadersCount = Math.max(0, Integer.parseInt(args[1]));
-				int amazonsCount = Math.max(0, Integer.parseInt(args[2]));
-				int corsairsCount = Math.max(0, Integer.parseInt(args[3]));
-				int bishopsCount = Math.max(0, Integer.parseInt(args[4]));
-				int necromancersCount = Math.max(0, Integer.parseInt(args[5]));
-				int architectsCount = Math.max(0, Integer.parseInt(args[6]));
-				
-				int unitsToRecruits = warlocksCount + crusadersCount + amazonsCount + corsairsCount + bishopsCount + necromancersCount + architectsCount;
-				int peonsAvailable = source.getPeons();
-				int recruitableUnits = Math.min(unitsToRecruits, peonsAvailable);
-				int goldAvailable = source.getGold();
-				int affordableUnits = (recruitableUnits != unitsToRecruits ? Math.floorDiv(goldAvailable, GOLD_RECRUIT_DEFAULT) : recruitableUnits);
-				
-				if (affordableUnits > 0) {
-				
-					RandomNumberGenerator random = new RandomNumberGenerator();
-					int[] recruits = random.genNumberWithLimits(affordableUnits, new int[]{warlocksCount, crusadersCount, amazonsCount, corsairsCount, bishopsCount, necromancersCount, architectsCount});
-					int warlocksRecruited = recruits[0];
-					int crusadersRecruited = recruits[1];
-					int amazonsRecruited = recruits[2];
-					int corsairsRecruited = recruits[3];
-					int bishopsRecruited = recruits[4];
-					int necromancersRecruited = recruits[5];
-					int architectsRecruited = recruits[6];
-					int recruted = warlocksRecruited + crusadersRecruited + amazonsRecruited + corsairsRecruited + bishopsRecruited + necromancersRecruited + architectsRecruited;
-					int cost = (warlocksRecruited * GOLD_RECRUIT_WARLOCK + crusadersRecruited * GOLD_RECRUIT_CRUSADER + amazonsRecruited * GOLD_RECRUIT_AMAZON + corsairsRecruited * GOLD_RECRUIT_CORSAIR + bishopsRecruited * GOLD_PER_BISHOP + necromancersRecruited * GOLD_RECRUIT_NECROMANCER + architectsRecruited * GOLD_RECRUIT_ARCHITECT);
-			
-			
-					source.setWarlocks(source.getWarlocks() + warlocksRecruited);
-					source.setCrusaders(source.getCrusaders() + crusadersRecruited);
-					source.setAmazons(source.getAmazons() + amazonsRecruited);
-					source.setCorsairs(source.getCorsairs() + corsairsRecruited);
-					source.setBishops(source.getBishops() + bishopsRecruited);
-					source.setNecromancers(source.getNecromancers() + necromancersRecruited);
-					source.setArchitects(source.getArchitects() + architectsRecruited);
-					source.setPeons(source.getPeons() - recruted);
-					source.setGold(source.getGold() - cost);
-					
-					if (GAME_MESSAGES) System.out.println(source.getOwner().getDisplayName() + " recruted " + recruted + " units (" + warlocksRecruited + " Wa / " + crusadersRecruited + " Cr / " + amazonsRecruited + " Am / " + corsairsRecruited + " Co / " + bishopsRecruited + " Bi / " + necromancersRecruited + " Ne / " + architectsRecruited + " Ar)");
-				}
-			} else if (support.getCommand().equals("W")) {
-				// Do nothing
-			} else {
-				if (DEBUG) System.out.println("Phase " + phase + " (Recruitment) : Invalid command by " + source.getOwner().getDisplayName() + "{" + source.getId() + "}");
-			}
-		} catch (Exception e) {
-			if (DEBUG) {
-				System.out.println("Exception in executeRecruitment() by " + source.getOwner().getDisplayName());
-				e.printStackTrace();
-			}
-		}
+
+	    Town source = support.getSource();
+	    try {
+	        String[] args = support.getArgs();
+
+	        if (support.getCommand().equals("R") && args.length == 7) {
+	            int goldAvailable = source.getGold();
+	            if (goldAvailable <= 0) {
+	                return;
+	            }
+
+	            int warlocksCount = Math.max(0, Integer.parseInt(args[0]));
+	            int crusadersCount = Math.max(0, Integer.parseInt(args[1]));
+	            int amazonsCount = Math.max(0, Integer.parseInt(args[2]));
+	            int corsairsCount = Math.max(0, Integer.parseInt(args[3]));
+	            int bishopsCount = Math.max(0, Integer.parseInt(args[4]));
+	            int necromancersCount = Math.max(0, Integer.parseInt(args[5]));
+	            int architectsCount = Math.max(0, Integer.parseInt(args[6]));
+
+	            int originalWarlocksCount = warlocksCount;
+	            int originalCrusadersCount = crusadersCount;
+	            int originalAmazonsCount = amazonsCount;
+	            int originalCorsairsCount = corsairsCount;
+	            int originalBishopsCount = bishopsCount;
+	            int originalNecromancersCount = necromancersCount;
+	            int originalArchitectsCount = architectsCount;
+
+	            int unitsToRecruits = warlocksCount + crusadersCount + amazonsCount + corsairsCount + bishopsCount + necromancersCount + architectsCount;
+	            int peonsAvailable = source.getPeons();
+	            int recruitableUnits = Math.min(unitsToRecruits, peonsAvailable);
+	            if (recruitableUnits != unitsToRecruits) {
+	                RandomNumberGenerator random = new RandomNumberGenerator();
+	                int[] recruits = random.genNumberWithLimits(recruitableUnits, new int[] { warlocksCount, crusadersCount, amazonsCount, corsairsCount, bishopsCount, necromancersCount,
+	                        architectsCount });
+	                warlocksCount = recruits[0];
+	                crusadersCount = recruits[1];
+	                amazonsCount = recruits[2];
+	                corsairsCount = recruits[3];
+	                bishopsCount = recruits[4];
+	                necromancersCount = recruits[5];
+	                architectsCount = recruits[6];
+	            }
+
+	            int wouldCost;
+	            int index = 1;
+	            boolean tooExpensive = true;
+	            do {
+	                wouldCost = warlocksCount * GOLD_RECRUIT_WARLOCK + crusadersCount * GOLD_RECRUIT_CRUSADER + amazonsCount * GOLD_RECRUIT_AMAZON + corsairsCount * GOLD_RECRUIT_CORSAIR
+	                        + bishopsCount * GOLD_PER_BISHOP + necromancersCount * GOLD_RECRUIT_NECROMANCER + architectsCount * GOLD_RECRUIT_ARCHITECT;
+	                if (goldAvailable < wouldCost) {
+	                    RandomNumberGenerator random = new RandomNumberGenerator();
+	                    int[] recruits = random.genNumberWithLimits(recruitableUnits - index, new int[] { originalWarlocksCount, originalCrusadersCount, originalAmazonsCount, originalCorsairsCount,
+	                            originalBishopsCount, originalNecromancersCount, originalArchitectsCount });
+	                    warlocksCount = recruits[0];
+	                    crusadersCount = recruits[1];
+	                    amazonsCount = recruits[2];
+	                    corsairsCount = recruits[3];
+	                    bishopsCount = recruits[4];
+	                    necromancersCount = recruits[5];
+	                    architectsCount = recruits[6];
+	                } else {
+	                    tooExpensive = false;
+	                }
+	                index++;
+	            } while (tooExpensive);
+
+	            int recruted = warlocksCount + crusadersCount + amazonsCount + corsairsCount + bishopsCount + necromancersCount + architectsCount;
+	            if (recruted > 0) {
+	                source.setWarlocks(source.getWarlocks() + warlocksCount);
+	                source.setCrusaders(source.getCrusaders() + crusadersCount);
+	                source.setAmazons(source.getAmazons() + amazonsCount);
+	                source.setCorsairs(source.getCorsairs() + corsairsCount);
+	                source.setBishops(source.getBishops() + bishopsCount);
+	                source.setNecromancers(source.getNecromancers() + necromancersCount);
+	                source.setArchitects(source.getArchitects() + architectsCount);
+	                source.setPeons(source.getPeons() - recruted);
+	                source.setGold(source.getGold() - wouldCost);
+
+	                if (GAME_MESSAGES)
+	                    System.out.println(source.getOwner().getDisplayName() + " recruted " + recruted + " units (" + warlocksCount + " Wa / " + crusadersCount + " Cr / " + amazonsCount + " Am / "
+	                            + corsairsCount + " Co / " + bishopsCount + " Bi / " + necromancersCount + " Ne / " + architectsCount + " Ar)");
+	            }
+	        } else if (support.getCommand().equals("W")) {
+	            // Do nothing
+	        } else {
+	            if (DEBUG)
+	                System.out.println("Phase " + phase + " (Recruitment) : Invalid command by " + source.getOwner().getDisplayName() + "{" + source.getId() + "}");
+	        }
+	    } catch (Exception e) {
+	        if (DEBUG) {
+	            System.out.println("Exception in executeRecruitment() by " + source.getOwner().getDisplayName());
+	            e.printStackTrace();
+	        }
+	    }
 	}
 
 	private void executeConstruction(Command support) {
@@ -916,7 +952,7 @@ public class Game {
 					int crusadersConvertible = Math.min(destination.getCrusaders(), crusadersCount);
 					int amazonsConvertible = Math.min(destination.getAmazons(), amazonsCount);
 					
-					int totalConvertible = (warlocksConvertible + crusadersConvertible + crusadersConvertible);
+					int totalConvertible = (warlocksConvertible + crusadersConvertible + amazonsConvertible);
 					int conversionsPossible = Math.min(totalConvertible, source.getBishops());
 					int cost = conversionsPossible * GOLD_PER_CONVERSION;
 					
@@ -1117,7 +1153,7 @@ public class Game {
 						movedAmazons += amazonsCount;
 						
 					}
-					if (source.getWarlocks() >= corsairsCount) {
+					if (source.getCorsairs() >= corsairsCount) {
 						source.setCorsairs(source.getCorsairs() - corsairsCount);
 						destination.setCorsairs(destination.getCorsairs() + corsairsCount);
 						movedUnits += corsairsCount;
