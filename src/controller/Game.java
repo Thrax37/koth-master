@@ -14,6 +14,7 @@ public class Game {
 			new Commander(),
 			new Lannister(),
 			new Monarch(),
+			new Politician(),
 			new Sehtimianer(),
 			new Serenity(),
 			new Sleeper(),

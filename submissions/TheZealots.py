@@ -50,7 +50,7 @@ else:
             output = 'A %s %s %s 0' % (target[TOWN],here[WARLOCKS]*3/4,target[AMAZONS])
     elif phase == 8:
         if here[CORPSES] > 10:
-            output = 'R %s' % here[NECROMANCERS]*5
+            output = 'R %s' % (here[NECROMANCERS]*5)
     elif phase == 9:
         pass  # move people or gold here
     elif phase == 11 and here[GOLD] > 300:
