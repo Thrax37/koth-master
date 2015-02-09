@@ -13,6 +13,7 @@ public class Game {
 			new Butter(),
 			new Commander(),
 			new Lannister(),
+			new Machiaveli(),
 			new Monarch(),
 			new Politician(),
 			new Sehtimianer(),
