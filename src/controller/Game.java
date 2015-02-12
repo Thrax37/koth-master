@@ -15,6 +15,7 @@ public class Game {
 			new Lannister(),
 			new Machiaveli(),
 			new Monarch(),
+			new Opportunist(),
 			new Politician(),
 			new Sehtimianer(),
 			new Serenity(),
